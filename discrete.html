@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discrete — Hack Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Phantom Sans';
+  src: url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff2') format('woff2'),
+       url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff') format('woff');
+  font-weight: 400; font-style: normal;
+}
+@font-face {
+  font-family: 'Phantom Sans';
+  src: url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff2') format('woff2'),
+       url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff') format('woff');
+  font-weight: 700; font-style: normal;
+}
+</style>
+<style>
+:root {
+  --p:   #7dd9f5;
+  --pg:  #29b6f6;
+  --bg:  #04070e;
+  --bg2: #060a14;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--p);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* scanlines */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent 3px,
+    rgba(0,0,0,0.09) 3px, rgba(0,0,0,0.09) 4px
+  );
+  pointer-events:none;
+  z-index:8000;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top:0; left:0; right:0;
+  z-index:500;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:1.2rem 2.5rem;
+  background: rgba(4,7,14,0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(125,217,245,0.07);
+}
+
+.hc-logo {
+  display:flex; align-items:center; text-decoration:none;
+}
+.hc-logo img {
+  height: 90px;
+  filter:
+    brightness(0) saturate(100%) invert(1) sepia(1) saturate(3)
+    hue-rotate(175deg) brightness(1.2)
+    drop-shadow(0 0 10px rgba(125,217,245,1))
+    drop-shadow(0 0 26px rgba(41,182,246,0.75))
+    drop-shadow(0 0 55px rgba(41,182,246,0.4));
+}
+
+.nav-right {
+  display:flex; align-items:center;
+}
+
+/* ── BUTTONS ── */
+.btn-wrap {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.btn-wrap:hover { transform: translateY(-2px); }
+
+.btn-wrap svg.btn-border {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.btn-wrap svg.btn-border path {
+  fill: none;
+  stroke: var(--p);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter:
+    drop-shadow(0 0 4px rgba(125,217,245,1))
+    drop-shadow(0 0 12px rgba(41,182,246,0.75))
+    drop-shadow(0 0 28px rgba(41,182,246,0.35));
+  transition: filter 0.2s;
+}
+.btn-wrap:hover svg.btn-border path {
+  filter:
+    drop-shadow(0 0 7px rgba(125,217,245,1))
+    drop-shadow(0 0 22px rgba(41,182,246,1))
+    drop-shadow(0 0 50px rgba(41,182,246,0.55));
+}
+.btn-wrap .btn-label {
+  display: block;
+  position: relative;
+  z-index: 1;
+  font-family: 'Phantom Sans', 'Nunito', sans-serif;
+  font-weight: 400;
+  color: #c8ecfc;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.btn-wrap:hover .btn-label { color: #fff; }
+.btn-sm .btn-label { font-size: 0.88rem; letter-spacing: 0.05em; padding: 0.55rem 1.7rem; }
+.btn-lg .btn-label { font-size: 1.1rem;  letter-spacing: 0.04em; padding: 1rem 3rem; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  padding: 7rem 2rem 5rem;
+}
+
+/* graticule grid — full page */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(125,217,245,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125,217,245,0.055) 1px, transparent 1px);
+  background-size:55px 55px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* graticule grid — hero only (removed, now full page) */
+#hero::before { display:none; }
+
+/* big ambient radial behind title */
+.hero-bloom {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:900px; height:600px;
+  background: radial-gradient(ellipse,
+    rgba(41,182,246,0.12) 0%,
+    rgba(41,182,246,0.04) 35%,
+    transparent 65%
+  );
+  pointer-events:none;
+}
+
+canvas#osc {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  opacity:0.7;
+}
+
+.hero-inner {
+  position:relative;
+  z-index:2;
+  max-width:800px;
+}
+
+.hero-eyebrow {
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(125,217,245,0.75);
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(125,217,245,0.45);
+}
+
+h1 {
+  font-size: clamp(5rem, 14vw, 11rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+  line-height:0.9;
+  margin-bottom:1.8rem;
+  color: #c8ecfc;
+  text-shadow:
+    0 0 10px rgba(125,217,245,1),
+    0 0 30px rgba(125,217,245,0.7),
+    0 0 70px rgba(41,182,246,0.5),
+    0 0 140px rgba(41,182,246,0.25),
+    0 0 280px rgba(41,182,246,0.1);
+}
+
+.hero-sub {
+  font-size:clamp(1rem, 2.5vw, 1.35rem);
+  font-weight:300;
+  color: rgba(125,217,245,0.55);
+  line-height:1.7;
+  max-width:540px;
+  margin:0 auto 2.8rem;
+  letter-spacing:0.01em;
+}
+.hero-sub strong {
+  color: rgba(125,217,245,0.85);
+  font-weight:600;
+}
+
+/* scroll hint */
+.scroll-hint {
+  position:absolute;
+  bottom:2.5rem; left:50%;
+  transform:translateX(-50%);
+  font-size:0.62rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:rgba(125,217,245,0.2);
+  z-index:2;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:0.6} }
+
+/* ── SECTIONS ── */
+section.band {
+  padding:7rem 2rem;
+  position:relative;
+  z-index:1;
+}
+section.band.alt { background: var(--bg2); }
+
+.band-inner {
+  max-width:960px;
+  margin:0 auto;
+}
+
+.band-label {
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(125,217,245,0.75);
+  margin-bottom: 0.9rem;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(125,217,245,0.45);
+}
+
+.band h2 {
+  font-size:clamp(2rem, 5vw, 3.2rem);
+  font-weight:300;
+  color: #b8e8f8;
+  line-height:1.1;
+  margin-bottom:1.5rem;
+  text-shadow:
+    0 0 20px rgba(125,217,245,0.4),
+    0 0 60px rgba(41,182,246,0.15);
+}
+.band h2 em {
+  font-style:italic;
+  color: #d4f1fc;
+  text-shadow:
+    0 0 25px rgba(125,217,245,0.6),
+    0 0 60px rgba(41,182,246,0.25);
+}
+
+.band p {
+  font-size:0.95rem;
+  line-height:1.9;
+  color: rgba(125,217,245,0.42);
+  max-width:580px;
+  margin-bottom:1rem;
+}
+.band p:last-child { margin-bottom:0; }
+.band strong { color:rgba(125,217,245,0.7); font-weight:600; }
+
+/* mountain SVG */
+.mountain-svg {
+  display: block;
+  margin-top: 2rem;
+  filter:
+    drop-shadow(0 0 6px rgba(125,217,245,0.9))
+    drop-shadow(0 0 18px rgba(41,182,246,0.5))
+    drop-shadow(0 0 40px rgba(41,182,246,0.2));
+}
+.mountain-svg path, .mountain-svg polyline {
+  fill: none;
+  stroke: #7dd9f5;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Maxwell's equations */
+.maxwell {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.maxwell-eq {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #c8ecfc;
+  letter-spacing: 0.03em;
+  text-shadow:
+    0 0 8px rgba(125,217,245,1),
+    0 0 20px rgba(125,217,245,0.8),
+    0 0 45px rgba(41,182,246,0.5),
+    0 0 90px rgba(41,182,246,0.2);
+  line-height: 1.5;
+}
+
+/* two-col layout */
+.two-col {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5rem;
+  align-items:start;
+}
+
+/* steps */
+.steps { display:flex; flex-direction:column; gap:2rem; }
+.step  { display:flex; gap:1.8rem; align-items:flex-start; }
+
+.step-num {
+  font-size:2.8rem;
+  font-weight:800;
+  line-height:1;
+  color: rgba(125,217,245,0.1);
+  flex-shrink:0;
+  width:3.5rem;
+  text-align:right;
+  text-shadow: 0 0 20px rgba(125,217,245,0.15);
+  transition: color 0.3s;
+}
+.step:hover .step-num {
+  color:rgba(125,217,245,0.35);
+  text-shadow: 0 0 30px rgba(125,217,245,0.3);
+}
+
+.step-body h3 {
+  font-size:1.05rem;
+  font-weight:600;
+  color: rgba(125,217,245,0.72);
+  margin-bottom:0.4rem;
+  letter-spacing:0.01em;
+  text-shadow:0 0 15px rgba(125,217,245,0.2);
+}
+.step-body p {
+  font-size:0.87rem;
+  color:rgba(125,217,245,0.38);
+  line-height:1.8;
+  max-width:none;
+}
+
+/* ions panel */
+.ions-panel {
+  background: rgba(125,217,245,0.03);
+  border:1px solid rgba(125,217,245,0.1);
+  padding:2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ions-panel h3 {
+  font-size:3.5rem;
+  font-weight:800;
+  color: #c8ecfc;
+  text-shadow:
+    0 0 15px rgba(125,217,245,1),
+    0 0 40px rgba(41,182,246,0.6),
+    0 0 90px rgba(41,182,246,0.3),
+    0 0 160px rgba(41,182,246,0.12);
+  margin-bottom:0.5rem;
+  line-height:1;
+}
+.ions-panel .ions-sub {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(125,217,245,0.5);
+  font-weight: 600;
+}
+
+/* ── BONUS ── very prominent */
+.bonus-band {
+  padding: 10rem 2rem;
+  background: var(--bg2);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-top: 1px solid rgba(125,217,245,0.12);
+  border-bottom: 1px solid rgba(125,217,245,0.12);
+}
+.bonus-band::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px; height: 600px;
+  background: radial-gradient(ellipse,
+    rgba(125,217,245,0.13) 0%,
+    rgba(41,182,246,0.05) 40%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+.bonus-inner {
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.bonus-tag {
+  display: inline-block;
+  font-family: 'Phantom Sans', 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: rgba(125,217,245,0.9);
+  padding: 0.45rem 1.5rem;
+  border-radius: 999px;
+  margin-bottom: 2.5rem;
+  box-shadow:
+    0 0 22px rgba(125,217,245,0.7),
+    0 0 55px rgba(41,182,246,0.35),
+    0 0 100px rgba(41,182,246,0.15);
+}
+.bonus-inner h2 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 800;
+  color: #e0f8ff;
+  line-height: 1.0;
+  margin-bottom: 2rem;
+  text-shadow:
+    0 0 20px rgba(125,217,245,1),
+    0 0 50px rgba(41,182,246,0.65),
+    0 0 110px rgba(41,182,246,0.3),
+    0 0 200px rgba(41,182,246,0.12);
+}
+.bonus-inner p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: rgba(125,217,245,0.65);
+  margin-bottom: 0;
+  max-width: 580px;
+  margin: 0 auto;
+}
+.bonus-inner strong { color: rgba(125,217,245,0.95); font-weight: 600; }
+
+/* FAQ */
+.faq { margin-top:2rem; }
+.fq { border-top:1px solid rgba(125,217,245,0.08); }
+.fq:last-child { border-bottom:1px solid rgba(125,217,245,0.08); }
+
+.fq-q {
+  width:100%; background:none; border:none;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.1rem 0;
+  gap:1rem;
+  cursor:pointer;
+  font-family:'Nunito',sans-serif;
+  font-size:0.95rem;
+  font-weight:400;
+  color:rgba(125,217,245,0.55);
+  text-align:left;
+  transition:color 0.15s;
+}
+.fq-q:hover { color:var(--p); }
+.fq-q .arr {
+  color:rgba(125,217,245,0.2);
+  font-size:0.7rem;
+  flex-shrink:0;
+  transition:transform 0.25s, color 0.2s;
+}
+.fq.open .fq-q .arr { transform:rotate(90deg); color:rgba(125,217,245,0.5); }
+.fq-a { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+.fq.open .fq-a { max-height:200px; }
+.fq-a p { padding-bottom:1.1rem; font-size:0.87rem; color:rgba(125,217,245,0.35); line-height:1.85; max-width:600px; }
+
+/* divider line */
+.rule { border:none; border-top:1px solid rgba(125,217,245,0.07); }
+
+/* ── FINAL CTA BAND ── */
+#final {
+  text-align:center;
+  padding:9rem 2rem;
+  position:relative;
+  z-index:1;
+  overflow:hidden;
+}
+#final::before {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(125,217,245,0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125,217,245,0.032) 1px, transparent 1px);
+  background-size:55px 55px;
+  pointer-events:none;
+}
+#final::after {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:700px; height:500px;
+  background: radial-gradient(ellipse,
+    rgba(41,182,246,0.1) 0%,
+    rgba(41,182,246,0.03) 40%,
+    transparent 65%
+  );
+  pointer-events:none;
+}
+.final-inner { position:relative; z-index:1; }
+#final h2 {
+  font-size:clamp(2.5rem, 7vw, 5.5rem);
+  font-weight:800;
+  color:#c8ecfc;
+  line-height:1.0;
+  margin-bottom:1.5rem;
+  text-shadow:
+    0 0 15px rgba(125,217,245,0.8),
+    0 0 50px rgba(41,182,246,0.4),
+    0 0 120px rgba(41,182,246,0.15);
+}
+#final p {
+  font-size:1rem;
+  color:rgba(125,217,245,0.4);
+  line-height:1.8;
+  max-width:440px;
+  margin:0 auto 3rem;
+}
+
+/* footer */
+footer {
+  padding:2rem 2.5rem;
+  border-top:1px solid rgba(125,217,245,0.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.72rem;
+  color:rgba(125,217,245,0.18);
+  flex-wrap:wrap;
+  gap:0.5rem;
+  position:relative;
+  z-index:1;
+}
+footer a { color:inherit; text-decoration:none; transition:color 0.15s; }
+footer a:hover { color:rgba(125,217,245,0.5); }
+
+@media(max-width:768px){
+  .two-col { grid-template-columns:1fr; gap:3rem; }
+  nav { padding:1rem 1.5rem; }
+  .nav-right a:not(.nav-apply) { display:none; }
+  h1 { font-size:4.5rem; }
+  section.band { padding:5rem 1.5rem; }
+  #final { padding:6rem 1.5rem; }
+  footer { padding:1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="https://hackclub.com" class="hc-logo">
+    <img src="https://assets.hackclub.com/flag-orpheus-top.svg" alt="Hack Club">
+  </a>
+  <div class="nav-right">
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-bloom"></div>
+  <canvas id="osc"></canvas>
+  <div class="hero-inner">
+    <h1>discrete</h1>
+    <p class="hero-sub">
+      Design electronics with <strong>discrete</strong> components.<br>
+      Get your parts funded and earn cool prizes<br>
+      like an oscilloscope.
+    </p>
+    <a href="https://forms.fillout.com/t/7jwLRYit94us" class="btn-wrap btn-lg">
+      <!-- hand-drawn wobbly pill, sized for large button ~220×56 -->
+      <svg class="btn-border" width="235" height="62" viewBox="0 0 235 62">
+        <path d="M32,5 C55,0 90,3 117,4 C144,5 182,0 205,6 C220,10 232,20 231,31 C230,43 220,54 204,58 C183,62 148,60 117,59 C86,58 50,62 30,57 C13,53 2,42 3,31 C4,19 14,9 32,5 Z"/>
+      </svg>
+      <span class="btn-label">RSVP Here</span>
+    </a>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<hr class="rule">
+
+<!-- ── ABOUT ── -->
+<section class="band" id="about">
+  <div class="band-inner">
+    <div class="two-col">
+      <div>
+        <h2>from the<br><em>ground up.</em></h2>
+        <!-- phosphor mountain SVG -->
+        <svg class="mountain-svg" width="220" height="120" viewBox="0 0 220 120">
+          <!-- distant peak, left -->
+          <polyline points="10,105 55,38 80,68 110,15 140,62 168,30 210,105"/>
+          <!-- ground line -->
+          <line x1="0" y1="108" x2="220" y2="108" stroke="#7dd9f5" stroke-width="1" stroke-opacity="0.4"/>
+          <!-- snow cap on main peak -->
+          <polyline points="98,30 110,15 122,30"/>
+          <!-- subtle cross-hatch shading on main face -->
+          <line x1="104" y1="22" x2="116" y2="35" stroke="#7dd9f5" stroke-width="0.8" stroke-opacity="0.35"/>
+          <line x1="100" y1="28" x2="114" y2="42" stroke="#7dd9f5" stroke-width="0.8" stroke-opacity="0.25"/>
+        </svg>
+      </div>
+      <div>
+        <p>Building electronic projects with modules is easy.</p>
+        <p>What if every single component in your project was hand placed by you?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ── HOW IT WORKS ── -->
+<section class="band alt" id="how">
+  <div class="band-inner">
+    <div class="two-col">
+      <div>
+        <h2><em>3 steps.</em></h2>
+        <!-- Maxwell's equations in phosphor glow -->
+        <div class="maxwell">
+          <div class="maxwell-eq">∇ · E = ρ/ε₀</div>
+          <div class="maxwell-eq">∇ · B = 0</div>
+          <div class="maxwell-eq">∇ × E = −∂B/∂t</div>
+          <div class="maxwell-eq">∇ × B = μ₀J + μ₀ε₀ ∂E/∂t</div>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <h3>Design your project</h3>
+            <p>Make schematics, calculate values, draw diagrams, and maybe learn Maxwell's equations. Submit your journal to earn funding.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <h3>Bring it to life</h3>
+            <p>Solder, analyze, and perfect your build. Log it and earn Ions.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <h3>Upgrade your workbench</h3>
+            <p>Spend Ions on lab upgrades like oscilloscopes and bench supplies.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ── IONS ── -->
+<section class="band" id="ions">
+  <div class="band-inner">
+    <div class="two-col" style="align-items:center;">
+      <div>
+        <p>Every project you complete earns Ions, the currency of this YSWS. Spend them on real lab equipment.</p>
+        <!-- oscilloscope SVG -->
+        <svg width="200" height="140" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top:1.8rem; display:block; filter: drop-shadow(0 0 5px rgba(125,217,245,0.9)) drop-shadow(0 0 16px rgba(41,182,246,0.6)) drop-shadow(0 0 40px rgba(41,182,246,0.25));">
+          <!-- outer chassis -->
+          <rect x="2" y="8" width="196" height="124" rx="4" stroke="#7dd9f5" stroke-width="1.5" fill="none"/>
+          <!-- screen bezel -->
+          <rect x="12" y="16" width="110" height="88" rx="3" stroke="#7dd9f5" stroke-width="1.4" fill="none"/>
+          <!-- screen face (slightly inset) -->
+          <rect x="16" y="20" width="102" height="80" rx="2" stroke="#7dd9f5" stroke-width="0.8" stroke-opacity="0.4" fill="none"/>
+          <!-- graticule lines on screen -->
+          <line x1="16" y1="40" x2="118" y2="40" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <line x1="16" y1="60" x2="118" y2="60" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <line x1="16" y1="80" x2="118" y2="80" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <line x1="42" y1="20" x2="42" y2="100" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <line x1="67" y1="20" x2="67" y2="100" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <line x1="92" y1="20" x2="92" y2="100" stroke="#7dd9f5" stroke-width="0.6" stroke-opacity="0.25"/>
+          <!-- waveform on screen — sine -->
+          <path d="M18,60 C24,60 26,30 33,30 C40,30 42,90 49,90 C56,90 58,30 65,30 C72,30 74,90 81,90 C88,90 90,30 97,30 C104,30 106,60 112,60" stroke="#7dd9f5" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <!-- right panel — knobs area -->
+          <!-- V/div knob -->
+          <circle cx="148" cy="35" r="10" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <circle cx="148" cy="35" r="3" stroke="#7dd9f5" stroke-width="1" fill="none"/>
+          <line x1="148" y1="25" x2="148" y2="29" stroke="#7dd9f5" stroke-width="1.2"/>
+          <!-- time/div knob -->
+          <circle cx="178" cy="35" r="10" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <circle cx="178" cy="35" r="3" stroke="#7dd9f5" stroke-width="1" fill="none"/>
+          <line x1="178" y1="25" x2="181" y2="28" stroke="#7dd9f5" stroke-width="1.2"/>
+          <!-- small labels -->
+          <text x="148" y="52" text-anchor="middle" font-family="'Courier New',monospace" font-size="5" fill="#7dd9f5" opacity="0.5">V/DIV</text>
+          <text x="178" y="52" text-anchor="middle" font-family="'Courier New',monospace" font-size="5" fill="#7dd9f5" opacity="0.5">T/DIV</text>
+          <!-- trigger knob -->
+          <circle cx="163" cy="72" r="8" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <line x1="163" y1="64" x2="163" y2="67" stroke="#7dd9f5" stroke-width="1.2"/>
+          <text x="163" y="87" text-anchor="middle" font-family="'Courier New',monospace" font-size="5" fill="#7dd9f5" opacity="0.5">TRIG</text>
+          <!-- power button -->
+          <circle cx="163" cy="110" r="7" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <line x1="163" y1="103" x2="163" y2="106" stroke="#7dd9f5" stroke-width="1.5"/>
+          <path d="M158,106 Q155,117 163,117 Q171,117 168,106" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <!-- BNC connectors bottom -->
+          <circle cx="30" cy="118" r="5" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <circle cx="30" cy="118" r="2" stroke="#7dd9f5" stroke-width="1" fill="none"/>
+          <circle cx="55" cy="118" r="5" stroke="#7dd9f5" stroke-width="1.2" fill="none"/>
+          <circle cx="55" cy="118" r="2" stroke="#7dd9f5" stroke-width="1" fill="none"/>
+          <text x="30" y="128" text-anchor="middle" font-family="'Courier New',monospace" font-size="4.5" fill="#7dd9f5" opacity="0.45">CH1</text>
+          <text x="55" y="128" text-anchor="middle" font-family="'Courier New',monospace" font-size="4.5" fill="#7dd9f5" opacity="0.45">CH2</text>
+        </svg>
+      </div>
+      <div class="ions-panel">
+        <h3>⚛ ions</h3>
+        <div class="ions-sub">the discrete currency</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ── BONUS ── -->
+<section class="bonus-band">
+  <div class="bonus-inner">
+    <div class="bonus-tag">Bonus</div>
+    <h2>write a guide.<br><em>get a grant.</em></h2>
+    <p>Build something cool? Write a build guide with all the theory, math, logic, and components so others can replicate and learn from it. Submit it with your build to earn a <strong>Learning Grant</strong> on top of your parts funding.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ── FAQ ── -->
+<section class="band" id="faq">
+  <div class="band-inner" style="max-width:680px;">
+    <div class="band-label">Questions</div>
+    <h2>faq</h2>
+    <div class="faq">
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">What should I make? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>Anything you want that uses discrete components! Some examples include a universal PWM generator, synthesizer, or a breadboard computer.</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">Can I use an Arduino? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>No! Instead of using a devboard, try implementing the chip in your project. For example, use an ATmega chip instead of an Arduino board!</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">What counts as discrete? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>Individual ICs, passives, transistors, diodes, etc. No breakout boards or modules.</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">How much funding can I get? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>Up to $300 depending on your design complexity.</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">Who can participate? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>Any teenagers aged 13–18 anywhere can participate in Hack Club Discrete.</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">Can I submit to other Hack Club programs? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>No double-dipping! Projects submitted to Discrete cannot be submitted to any other YSWS.</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">What is the Learning Grant? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>A grant awarded to those who write a guide. It can be used on anything to expand your electronics knowledge (books, courses, etc.)</p></div>
+      </div>
+      <div class="fq">
+        <button class="fq-q" onclick="tog(this)">Have any more questions or need help? <span class="arr">▶</span></button>
+        <div class="fq-a"><p>Ask me (@Sidd) on the Slack! I'm always happy to help.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section id="final">
+  <div class="final-inner">
+    <!-- 555 Timer IC — simple flat DIP, phosphor glow -->
+    <svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:2rem; display:block; margin-left:auto; margin-right:auto; filter: drop-shadow(0 0 6px rgba(125,217,245,1)) drop-shadow(0 0 18px rgba(41,182,246,0.7)) drop-shadow(0 0 45px rgba(41,182,246,0.3));">
+      <!-- chip body -->
+      <rect x="30" y="18" width="60" height="64" rx="3" stroke="#7dd9f5" stroke-width="1.8" fill="none"/>
+      <!-- notch top-left -->
+      <path d="M30,28 Q30,18 40,18" stroke="#7dd9f5" stroke-width="1.8" fill="none"/>
+      <!-- left pins -->
+      <line x1="10" y1="30" x2="30" y2="30" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="10" y1="42" x2="30" y2="42" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="10" y1="54" x2="30" y2="54" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="10" y1="66" x2="30" y2="66" stroke="#7dd9f5" stroke-width="1.5"/>
+      <!-- right pins -->
+      <line x1="90" y1="30" x2="110" y2="30" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="90" y1="42" x2="110" y2="42" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="90" y1="54" x2="110" y2="54" stroke="#7dd9f5" stroke-width="1.5"/>
+      <line x1="90" y1="66" x2="110" y2="66" stroke="#7dd9f5" stroke-width="1.5"/>
+      <!-- pin dot markers -->
+      <circle cx="10" cy="30" r="2" fill="#7dd9f5"/><circle cx="10" cy="42" r="2" fill="#7dd9f5"/>
+      <circle cx="10" cy="54" r="2" fill="#7dd9f5"/><circle cx="10" cy="66" r="2" fill="#7dd9f5"/>
+      <circle cx="110" cy="30" r="2" fill="#7dd9f5"/><circle cx="110" cy="42" r="2" fill="#7dd9f5"/>
+      <circle cx="110" cy="54" r="2" fill="#7dd9f5"/><circle cx="110" cy="66" r="2" fill="#7dd9f5"/>
+      <!-- inner die detail -->
+      <rect x="42" y="32" width="36" height="36" rx="1" stroke="#7dd9f5" stroke-width="0.8" stroke-opacity="0.45" fill="none"/>
+      <line x1="42" y1="50" x2="78" y2="50" stroke="#7dd9f5" stroke-width="0.7" stroke-opacity="0.3"/>
+      <line x1="60" y1="32" x2="60" y2="68" stroke="#7dd9f5" stroke-width="0.7" stroke-opacity="0.3"/>
+      <!-- label -->
+      <text x="60" y="47" text-anchor="middle" font-family="'Courier New', monospace" font-size="7" fill="#7dd9f5" opacity="0.9">555</text>
+      <text x="60" y="58" text-anchor="middle" font-family="'Courier New', monospace" font-size="5.5" fill="#7dd9f5" opacity="0.6">TIMER</text>
+    </svg>
+    <h2>build something<br>you understand.</h2>
+    <p>Drop the modules and learn real electrical engineering. The magic smoke stays inside if you do it right.</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div>Discrete · <a href="https://hackclub.com">Hack Club</a></div>
+  <div>501(c)(3) nonprofit · <a href="https://hackclub.com/slack">Join the Slack →</a></div>
+</footer>
+
+<script>
+// ── CRT waveforms ──
+(function(){
+  const c = document.getElementById('osc');
+  const ctx = c.getContext('2d');
+  let W, H, t = 0;
+  function resize(){ W = c.width = c.offsetWidth; H = c.height = c.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const sq = ph => (ph%(Math.PI*2)) < Math.PI ? 1 : -1;
+  const tr = ph => { const p=(ph%(Math.PI*2))/(Math.PI*2); return p<.5?p*4-1:3-p*4; };
+
+  // color, bloom, core per wave
+  const waves = [
+    // sine — main phosphor blue, tall
+    { fn: ph=>Math.sin(ph),             speed:.012, freq:.0032, y:.28, amp:.10,
+      bloom:'rgba(41,182,246,',   core:'rgba(180,230,255,' , lw:2.0 },
+    // square — warmer, slightly greenish-cyan
+    { fn: ph=>sq(ph),                   speed:.007, freq:.0048, y:.54, amp:.085,
+      bloom:'rgba(100,230,210,',  core:'rgba(180,255,240,' , lw:1.8 },
+    // triangle — cool pale blue, thinner
+    { fn: ph=>tr(ph),                   speed:.009, freq:.0038, y:.77, amp:.075,
+      bloom:'rgba(125,217,245,',  core:'rgba(210,245,255,' , lw:1.6 },
+  ];
+
+  function draw(w){
+    const path = new Path2D();
+    for(let x=0;x<W;x++){
+      const ph = x*w.freq*Math.PI + t*w.speed;
+      const y  = (w.y + w.fn(ph)*w.amp)*H;
+      x===0 ? path.moveTo(x,y) : path.lineTo(x,y);
+    }
+    // wide outer haze
+    ctx.strokeStyle=w.bloom+'0.06)'; ctx.lineWidth=w.lw+14; ctx.stroke(path);
+    // mid bloom
+    ctx.strokeStyle=w.bloom+'0.18)'; ctx.lineWidth=w.lw+5;  ctx.stroke(path);
+    // inner glow
+    ctx.strokeStyle=w.bloom+'0.45)'; ctx.lineWidth=w.lw+1.5;ctx.stroke(path);
+    // bright core
+    ctx.strokeStyle=w.core+'0.92)';  ctx.lineWidth=w.lw;    ctx.stroke(path);
+  }
+
+  (function frame(){ ctx.clearRect(0,0,W,H); waves.forEach(draw); t++; requestAnimationFrame(frame); })();
+})();
+
+// FAQ
+function tog(btn){
+  const item=btn.parentElement;
+  const open=item.classList.contains('open');
+  document.querySelectorAll('.fq.open').forEach(el=>el.classList.remove('open'));
+  if(!open) item.classList.add('open');
+}
+</script>
+</body>
+</html>
